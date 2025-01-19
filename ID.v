@@ -9,6 +9,14 @@ module id(
     input [`RegBus]                 reg1_data_i,
     input [`RegBus]                 reg2_data_i,
 
+    // adding: the output of 'ex' and 'mem' stages to achieve data forwarding.
+    input                           ex_wreg_i,
+    input [`RegBus]                 ex_wdata_i,
+    input [`RegAddrBus]             ex_wd_i,
+    input                           mem_wreg_i,
+    input [`RegBus]                 mem_wdata_i,
+    input [`RegAddrBus]             mem_wd_i,
+
     output reg                      reg1_read_o,
     output reg                      reg2_read_o,
     output reg[`RegAddrBus]         reg1_addr_o,
@@ -77,6 +85,14 @@ always @(*) begin
     if (rst == `RstEnable) begin
         reg1_o = `ZeroWord;
     end
+    // data forwarding: directly use the output of 'ex'/'mem' stage as the value of reg1_o. 
+    else if ((reg1_read_o == 1'b1) && (ex_wreg_i == 1'b1) && (ex_wd_i == reg1_addr_o)) begin
+        reg1_o = ex_wdata_i;
+    end
+    else if ((reg1_read_o == 1'b1) && (mem_wreg_i == 1'b1) && (mem_wd_i == reg1_addr_o)) begin
+        reg1_o = mem_wdata_i;
+    end
+    // end
     else if (reg1_read_o == 1'b1) begin
         reg1_o = reg1_data_i;
     end
@@ -92,6 +108,14 @@ always @(*) begin
     if (rst == `RstEnable) begin
         reg2_o = `ZeroWord;
     end
+    // data forwarding: directly use the output of 'ex'/'mem' stage as the value of reg1_o. 
+    else if ((reg2_read_o == 1'b1) && (ex_wreg_i == 1'b1) && (ex_wd_i == reg2_addr_o)) begin
+        reg2_o = ex_wdata_i;
+    end
+    else if ((reg2_read_o == 1'b1) && (mem_wreg_i == 1'b1) && (mem_wd_i == reg2_addr_o)) begin
+        reg2_o = mem_wdata_i;
+    end
+    // end
     else if (reg2_read_o == 1'b1) begin
         reg2_o = reg2_data_i;
     end
