@@ -11,6 +11,22 @@ module ex(
     input [`RegAddrBus]                 wd_i,
     input                               wreg_i,
 
+    input [`RegBus]                     hi_i,
+    input [`RegBus]                     lo_i,
+
+    //WAR detect
+    input [`RegBus]                     wb_hi_i,
+    input [`RegBus]                     wb_lo_i,
+    input                               wb_whilo_i,
+
+    input [`RegBus]                     mem_hi_i,
+    input [`RegBus]                     mem_lo_i,
+    input                               mem_whilo_i,
+
+    output reg [`RegBus]                hi_o,
+    output reg [`RegBus]                lo_o,
+    output reg                          whilo_o,
+
     output reg[`RegAddrBus]             wd_o,
     output reg                          wreg_o,
     output reg[`RegBus]                 wdata_o
@@ -18,7 +34,11 @@ module ex(
 
 // 'logicout' save the result of logical operation
 reg [`RegBus] logicout;    
-reg [`RegBus] shiftres;        
+reg [`RegBus] shiftres;   
+
+reg [`RegBus] moveres;
+reg [`RegBus] HI;
+reg [`RegBus] LO;
     
 
     always @(*)begin
@@ -78,10 +98,77 @@ reg [`RegBus] shiftres;
             `EXE_RES_SHIFT: begin
                 wdata_o = shiftres;
             end
+            `EXE_RES_MOVE: begin
+                wdata_o = moveres;
+            end
             default: begin
                 wdata_o = `ZeroWord;
             end
         endcase
+    end
+
+    always @(*) begin
+        if (rst == `RstEnable) begin
+            {HI,LO} = {`ZeroWord, `ZeroWord};
+        end
+        else if (mem_whilo_i == `WriteEnable) begin
+            {HI,LO} = {mem_hi_i, mem_lo_i};
+        end
+        else if (wb_whilo_i == `WriteEnable) begin
+            {HI,LO} = {wb_hi_i, wb_lo_i};
+        end
+        else begin
+            {HI,LO} = {hi_i, lo_i};
+        end
+    end
+
+    always @(*) begin
+        if (rst == `RstEnable) begin
+            moveres = `ZeroWord;
+        end
+        else begin
+            moveres = `ZeroWord;
+            case (aluop_i)
+                `EXE_MFHI_OP: begin
+                    moveres = HI;
+                end 
+                `EXE_MFLO_OP: begin
+                    moveres = LO;
+                end
+                `EXE_MOVZ_OP: begin
+                    moveres = reg1_i;
+                end
+                `EXE_MOVN_OP: begin
+                    moveres = reg1_i;
+                end
+                default: begin
+                    
+                end
+            endcase
+        end
+    end
+
+    always @(*) begin
+        if (rst == `RstEnable) begin
+            whilo_o = `WriteDisable;
+            hi_o = `ZeroWord;
+            lo_o = `ZeroWord;
+        end
+        else if (aluop_i == `EXE_MTHI_OP) begin
+            whilo_o = `WriteEnable;
+            hi_o = reg1_i;
+            lo_o = LO;
+        end
+        else if (aluop_i == `EXE_MTLO_OP) begin
+            whilo_o = `WriteEnable;
+            hi_o = HI;
+            lo_o = reg1_i;
+        end
+        else begin
+            whilo_o = `WriteDisable;
+            hi_o = `ZeroWord;
+            lo_o = `ZeroWord;
+        end
     end
 
 endmodule //ex

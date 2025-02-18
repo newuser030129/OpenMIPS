@@ -1,3 +1,0 @@
-read_verilog -sv -formal -overwrite {workspace}/ID.v
-design -reset-vlog; proc;
-write_json {workspace}/netlist/id.json

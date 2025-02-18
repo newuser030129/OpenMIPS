@@ -124,7 +124,7 @@ always @(*) begin
                                 reg2_read_o = 1'b1;
                                 inst_valid = `InstValid;
                             end
-                            `EXE_SYNC: begin
+                            `EXE_SYNC: begin    // ?? to be verified
                                 wreg_o = `WriteDisable;
                                 aluop_o = `EXE_NOP_OP;
                                 alusel_o = `EXE_RES_NOP;
@@ -132,11 +132,68 @@ always @(*) begin
                                 reg2_read_o = 1'b1;
                                 inst_valid = `InstValid;
                             end
+                            `EXE_MFHI: begin
+                                wreg_o = `WriteEnable;
+                                aluop_o = `EXE_MFHI_OP;
+                                alusel_o = `EXE_RES_MOVE;
+                                reg1_read_o = 1'b0;
+                                reg2_read_o = 1'b0;
+                                inst_valid = `InstValid;
+                            end
+                            `EXE_MFLO: begin
+                                wreg_o = `WriteEnable;
+                                aluop_o = `EXE_MFLO_OP;
+                                alusel_o = `EXE_RES_MOVE;
+                                reg1_read_o = 1'b0;
+                                reg2_read_o = 1'b0;
+                                inst_valid = `InstValid;
+                            end
+                            `EXE_MTHI: begin
+                                wreg_o = `WriteDisable;
+                                aluop_o = `EXE_MTHI_OP;
+                                //alusel_o = `EXE_RES_MOVE;
+                                reg1_read_o = 1'b1;
+                                reg2_read_o = 1'b0;
+                                inst_valid = `InstValid;
+                            end
+                            `EXE_MTLO: begin
+                                wreg_o = `WriteDisable;
+                                aluop_o = `EXE_MTLO_OP;
+                                //alusel_o = `EXE_RES_MOVE;
+                                reg1_read_o = 1'b1;
+                                reg2_read_o = 1'b0;
+                                inst_valid = `InstValid;
+                            end
+                            `EXE_MOVN: begin
+                                aluop_o = `EXE_MOVN_OP;
+                                alusel_o = `EXE_RES_MOVE;
+                                reg1_read_o = 1'b1;
+                                reg2_read_o = 1'b1;
+                                inst_valid = `InstValid;
+                                if (reg2_o != `ZeroWord) begin
+                                    wreg_o = `WriteEnable;
+                                end
+                                else begin
+                                    wreg_o = `WriteDisable;
+                                end
+                            end
+                            `EXE_MOVZ: begin
+                                aluop_o = `EXE_MOVZ_OP;
+                                alusel_o = `EXE_RES_MOVE;
+                                reg1_read_o = 1'b1;
+                                reg2_read_o = 1'b1;
+                                inst_valid = `InstValid;
+                                if (reg2_o == `ZeroWord) begin
+                                    wreg_o = `WriteEnable;
+                                end
+                                else begin
+                                    wreg_o = `WriteDisable;
+                                end
+                            end
                             default: begin
                                 
                             end
                         endcase
-
                     end 
                     default: begin
 
