@@ -1,10 +1,11 @@
 `timescale 1ns/1ns
 `include "define.v"
 module pc_reg(
-    input clk,
-    input rst,
-    output reg [`InstAddrBus]pc,
-    output reg ce
+    input                           clk,
+    input                           rst,
+    input [5:0]                     stall,      //from "ctrl" module
+    output reg [`InstAddrBus]       pc,
+    output reg                      ce
 );
 
     always @(posedge clk ) begin
@@ -20,7 +21,7 @@ module pc_reg(
         if (ce == `ChipDisable) begin
             pc <= 32'h00000000;
         end
-        else begin
+        else if (stall[0] == `NonStop) begin
             pc <= pc + 4'h4;
         end
     end

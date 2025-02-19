@@ -27,7 +27,9 @@ module id(
     output reg[`RegBus]             reg1_o,
     output reg[`RegBus]             reg2_o,
     output reg[`RegAddrBus]         wd_o,
-    output reg                      wreg_o
+    output reg                      wreg_o,
+
+    output                          stallreq_id
 );
     
 wire [5:0] op = inst_i[31:26];
@@ -467,6 +469,10 @@ always @(*) begin
         reg2_o = `ZeroWord;
     end
 end
+
+
+    
+assign stallreq_id = `NonStop;
 
 endmodule 
 

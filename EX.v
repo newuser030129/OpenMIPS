@@ -29,7 +29,9 @@ module ex(
 
     output reg[`RegAddrBus]             wd_o,
     output reg                          wreg_o,
-    output reg[`RegBus]                 wdata_o
+    output reg[`RegBus]                 wdata_o,
+
+    output                              stallreq_ex
 );
 
 // 'logicout' save the result of logical operation
@@ -281,6 +283,9 @@ wire [`DoubleRegBus]        hilo_temp;          //temporary multiplication resul
             lo_o = `ZeroWord;
         end
     end
+
+   assign stallreq_ex = `NonStop;
+  
 
 endmodule //ex
 

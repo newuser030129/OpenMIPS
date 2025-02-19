@@ -75,9 +75,22 @@ wire [`RegBus]                      hi;
 wire [`RegBus]                      lo;
 
 
+wire [5:0]                          stall0;  
+wire                                stallreqid;
+wire                                stallreqex; 
+
+
+ctrl u_ctrl(
+    .rst                            (rst),
+    .stall_req_from_ex              (stallreqex),
+    .stall_req_from_id              (stallreqid),
+    .stall                          (stall0)
+);
+
 pc_reg u_pc_reg(
     .clk                            (clk),
     .rst                            (rst),
+    .stall                          (stall0),
     .pc                             (pc),
     .ce                             (rom_ce_o)
 );
@@ -87,6 +100,7 @@ assign rom_addr_o = pc;
 if_id u_if_id(
     .clk                            (clk),
     .rst                            (rst),
+    .stall                          (stall0),
     .if_pc                          (pc),
     .if_inst                        (rom_data_i),
     .id_pc                          (id_pc_i),
@@ -122,7 +136,9 @@ id u_id(
     .ex_wd_i                        (ex_wd_o),
     .mem_wreg_i                     (mem_wreg_o),
     .mem_wdata_i                    (mem_wdata_o),
-    .mem_wd_i                       (mem_wd_o)
+    .mem_wd_i                       (mem_wd_o),
+
+    .stallreq_id                    (stallreqid)
 );
 
 RegFile u_RegFile(
@@ -142,6 +158,8 @@ RegFile u_RegFile(
 id_ex u_id_ex(
     .clk                            (clk),
     .rst                            (rst),
+
+    .stall                          (stall0),
     
     //from 'ID' module
     .id_aluop                       (id_aluop_o),
@@ -188,12 +206,16 @@ ex u_ex(
 
     .whilo_o                        (ex_whilo_o),
     .hi_o                           (ex_hi_o),
-    .lo_o                           (ex_lo_o)
+    .lo_o                           (ex_lo_o),
+
+    .stallreq_ex                     (stallreqex)
 );
 
 ex_mem u_ex_mem(
     .clk                            (clk),
     .rst                            (rst),
+
+    .stall                          (stall0),
     
     //from 'EX' module
     .ex_wd                          (ex_wd_o),
@@ -241,6 +263,8 @@ mem u_mem(
 mem_wb u_mem_wb(
     .clk                            (clk),
     .rst                            (rst),
+
+    .stall                          (stall0),
 
     //from 'MEM' module
     .mem_wd                         (mem_wd_o),

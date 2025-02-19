@@ -14,6 +14,8 @@
 `define False_v             1'b0
 `define ChipEnable          1'b1 
 `define ChipDisable         1'b0 
+`define Stop                1'b1
+`define NonStop             1'b0
 
 
 //****************    definition related to specific instructions    *********************************

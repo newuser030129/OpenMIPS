@@ -5,6 +5,7 @@ module if_id(
     input                           clk,
     input [`InstAddrBus]            if_pc,
     input [`InstBus]                if_inst,
+    input [5:0]                     stall,      //from "ctrl" module
 
     output reg[`InstAddrBus]        id_pc,
     output reg[`InstBus]            id_inst
@@ -15,7 +16,11 @@ module if_id(
             id_pc <= `ZeroWord;
             id_inst <= `ZeroWord;
         end
-        else begin
+        else if ((stall[1] == `Stop) && (stall[2] == `NonStop)) begin
+            id_pc <= `ZeroWord;
+            id_inst <= `ZeroWord;
+        end
+        else if (stall[1] == `NonStop) begin
             id_pc <= if_pc;
             id_inst <= if_inst;
         end
