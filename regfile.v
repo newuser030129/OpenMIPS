@@ -62,7 +62,7 @@ reg [`RegBus] regs[0:`RegNum-1];
             rdata2 = wdata;
         end
         else if (re2 == `ReadEnable) begin
-            rdata2 = regs[raddr1];
+            rdata2 = regs[raddr2];
         end
         else begin
             rdata2 = `ZeroWord;
